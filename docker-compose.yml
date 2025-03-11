@@ -12,8 +12,31 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - backend
+
+  mongodb:
+    image: mongo:7
+    restart: always
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s   # Проверять каждые 10 секунд
+      timeout: 5s     # Ждать ответа 5 секунд
+      retries: 5      # Попытаться 5 раз перед ошибкой
     networks:
       - backend
 
 networks:
   backend:
+
+volumes:
+  mongo_data:
