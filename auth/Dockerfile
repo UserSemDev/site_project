@@ -10,9 +10,9 @@ ENV PATH="${PATH}:/root/.local/bin"
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-interaction --no-ansi
+COPY pyproject.toml poetry.lock /app/
+RUN poetry install --no-interaction --no-ansi --no-root
 
-COPY . .
+COPY . /app/
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
