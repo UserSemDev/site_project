@@ -3,11 +3,11 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [tool.poetry]
-authors = [""]
-description = ""
-name = ""
+authors = ["Sem <semseveryanin@gmail.com>"]
+description = "Auth service"
+name = "auth-sevice"
 readme = "README.md"
-version = ""
+version = "0.1.0"
 
 [tool.poetry.dependencies]
 
