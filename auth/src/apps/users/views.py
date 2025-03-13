@@ -1,113 +1,69 @@
-import datetime
-from types import SimpleNamespace
-
-import bcrypt
-import pytz
-from django.conf import settings
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-
+import json
 from apps.users.serializers import UserSerializer
-from core.settings import MONGO_USERS_COLLECTION
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from apps.users.models import User
+from apps.users.utils import generate_jwt, validate_jwt
 
 
-class SignupView(APIView):
-    """Эндпоинт для регистрации"""
-
+class SignUpView(APIView):
+    @csrf_exempt
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        required_fields = ["username", "email", "password"]
+        missing_fields = [field for field in required_fields if not data.get(field)]
+        if missing_fields:
+            return JsonResponse({"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400)
+
+        if User.objects(username=data["username"]).first() or User.objects(email=data["email"]).first():
+            return JsonResponse({"error": "User with this username or email already exists"}, status=400)
+
+        serializer = UserSerializer(data=data)
         if serializer.is_valid():
             user = serializer.save()
-
-            user_id = user["_id"]
-            user_obj = SimpleNamespace(id=user_id)
-
-            refresh = RefreshToken.for_user(user_obj)
-            access_token = str(refresh.access_token)
-            return Response(
-                {
-                    "message": "User registered successfully",
-                    "user": {"username": user["username"], "role": user["role"]},
-                    "access_token": access_token,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(serializer.errors, status=status.HTTP_403_FORBIDDEN)
+            token = generate_jwt(user.id)
+            return JsonResponse({"jwt": token}, status=201)
+        return JsonResponse({"error": serializer.errors}, status=400)
 
 
-class SigninView(APIView):
-    """Эндпоинт для входа"""
-
-    def check_password(self, raw_password, hashed_password):
-        """Проверка пароля через bcrypt"""
-        return bcrypt.checkpw(
-            raw_password.encode("utf-8"), hashed_password.encode("utf-8")
-        )
-
+class SignInView(APIView):
+    @csrf_exempt
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-
-        missing_fields = []
-        if not username:
-            missing_fields.append("username")
-        if not password:
-            missing_fields.append("password")
-
-        if missing_fields:
-            return Response(
-                {"error": "Fill in all fields", "missing_fields": missing_fields},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        user = MONGO_USERS_COLLECTION.find_one({"username": username})
-        if user and self.check_password(password, user["password"]):
-            tz = pytz.timezone(settings.TIME_ZONE)
-            MONGO_USERS_COLLECTION.update_one(
-                {"username": username},
-                {"$set": {"last_login": datetime.datetime.now(tz)}},
-            )
-
-            user_id = user["_id"]
-            user_obj = SimpleNamespace(id=user_id)
-
-            refresh = RefreshToken.for_user(user_obj)
-            access_token = str(refresh.access_token)
-
-            return Response(
-                {
-                    "message": "User authenticated successfully",
-                    "user": {"username": user["username"], "role": user["role"]},
-                    "access_token": access_token,
-                },
-                status=status.HTTP_200_OK,
-            )
-        return Response(
-            {"error": "Incorrect credentials!"}, status=status.HTTP_403_FORBIDDEN
-        )
-
-
-class TokenVerificationView(APIView):
-    """Эндпоинт для проверки JWT-токена"""
-
-    def post(self, request):
-        token = request.data.get("token")
-
-        if not token:
-            return Response(
-                {"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
         try:
-            decoded_token = AccessToken(token)
-            user_id = decoded_token["user_id"]
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-            return Response(
-                {"message": "Token is valid", "user_id": user_id},
-                status=status.HTTP_200_OK,
-            )
+        username = data.get("username")
+        password = data.get("password")
 
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
+        if not username or not password:
+            return JsonResponse({"error": "Missing fields: username, password"}, status=400)
+
+        user = User.objects(username=username).first()
+        if not user or not user.check_password(password):
+            return JsonResponse({"error": "Invalid username or password"}, status=401)
+
+        user.update_last_login()
+        token = generate_jwt(user.id)
+        return JsonResponse({"jwt": token}, status=200)
+
+
+class AuthView(APIView):
+    def get(self, request):
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            return JsonResponse({"error": "Missing authorization header"}, status=403)
+
+        token = auth_header.split(" ")[1]
+        payload = validate_jwt(token)
+        if payload:
+            user_id = payload["user_id"]
+            user = User.objects(id=user_id).first()
+            return JsonResponse({"user": {"username": user.username, "role": user.role}}, status=200)
+        return JsonResponse({"error": "Invalid token"}, status=401)
