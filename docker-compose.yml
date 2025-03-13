@@ -29,9 +29,9 @@ services:
       - mongo_data:/data/db
     healthcheck:
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s   # Проверять каждые 10 секунд
-      timeout: 5s     # Ждать ответа 5 секунд
-      retries: 5      # Попытаться 5 раз перед ошибкой
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - backend
 
@@ -39,7 +39,7 @@ services:
     image: nginx:latest
     restart: always
     volumes:
-      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./logs:/var/log/nginx
     ports:
       - "8080:80"
@@ -52,6 +52,17 @@ services:
       retries: 3
     networks:
       - backend
+
+  events:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./backend:/usr/share/nginx/html:ro
+    ports:
+      - "8081:80"
+    networks:
+      - backend
+
 
 networks:
   backend:
