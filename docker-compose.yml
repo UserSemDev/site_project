@@ -1,24 +1,23 @@
 services:
-  auth:
+  auth-service:
+    container_name: "auth-service"
     build: ./auth
     tty: true
     restart: always
-    ports:
-      - "8001:8000"
     env_file:
       - ./auth/.env
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://auth:8000" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     depends_on:
-      mongodb:
-        condition: service_healthy
+       - mongodb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth-service.rule=Host(`auth.localhost`) && PathPrefix(`/`)"
+      - "traefik.http.routers.auth-service.entryPoints=web"
+      - "traefik.http.services.auth-service.loadbalancer.server.port=80"
     networks:
       - backend
 
   mongodb:
+    container_name: "mongodb"
     image: mongo:8.0.5
     restart: always
     ports:
@@ -27,34 +26,43 @@ services:
       - ./auth/.env
     volumes:
       - mongo_data:/data/db
-    healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s   # Проверять каждые 10 секунд
-      timeout: 5s     # Ждать ответа 5 секунд
-      retries: 5      # Попытаться 5 раз перед ошибкой
     networks:
       - backend
 
-  nginx:
-    image: nginx:latest
-    restart: always
-    volumes:
-      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-      - ./logs:/var/log/nginx
+  reverse-proxy:
+    container_name: "reverse-proxy"
+    image: "traefik:v3.3"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--entrypoints.web.address=:80"
+      - "--accesslog=true"
     ports:
-      - "8080:80"
-    depends_on:
-      - auth
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://nginx:80" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.http.middlewares.auth-service-middleware.forwardauth.address=http://auth-service/auth/"
+      - "traefik.http.middlewares.auth-service-middleware.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.auth-service-middleware.forwardauth.authResponseHeaders=Authorization,X-USER-ROLE"
+    networks:
+      - backend
+
+  whoami:
+    image: "traefik/whoami"
+    container_name: "whoami"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+      - "traefik.http.routers.whoami.entryPoints=web"
+      - "traefik.http.routers.whoami.middlewares=auth-service-middleware"
     networks:
       - backend
 
 networks:
   backend:
+    driver: bridge
 
 volumes:
   mongo_data:
