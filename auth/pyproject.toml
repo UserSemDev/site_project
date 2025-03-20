@@ -28,14 +28,11 @@ pytest = "^8.3.5"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "core.settings"
 addopts = "--reuse-db"
-env = [
-
-]
 filterwarnings = [
 
 ]
 markers = [
-
+    "unit: тесты на единичные компоненты"
 ]
 python_files = "test*.py"
 
