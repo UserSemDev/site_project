@@ -8,7 +8,7 @@ from mongoengine import connect, disconnect
 from core.settings import MONGO_DB_NAME, MONGO_HOST, MONGO_PORT, MONGO_USERNAME, MONGO_PASSWORD
 
 
-class AuthTest:
+class TestAuth:
     client = Client()
 
     @pytest.fixture(scope="function", autouse=True)

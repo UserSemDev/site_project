@@ -24,6 +24,7 @@ flake8 = "^7.1.2"
 isort = "^6.0.1"
 black = "^25.1.0"
 pytest = "^8.3.5"
+pytest-django = "^4.10.0"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "core.settings"
@@ -34,7 +35,8 @@ filterwarnings = [
 markers = [
     "unit: тесты на единичные компоненты"
 ]
-python_files = "test*.py"
+python_files = ["test_*.py", "*_test.py", "*tests.py"]
+testpaths = ["src"]
 
 [tool.tomlsort]
 all = true
