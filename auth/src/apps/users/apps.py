@@ -1,3 +1,6 @@
+from django.apps import AppConfig
+from mongoengine import connect
+
 from core.settings import (
     MONGO_AUTH_DB,
     MONGO_DB,
@@ -6,8 +9,6 @@ from core.settings import (
     MONGO_PORT,
     MONGO_USERNAME,
 )
-from django.apps import AppConfig
-from mongoengine import connect
 
 
 class UsersConfig(AppConfig):

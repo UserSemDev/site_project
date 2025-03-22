@@ -26,10 +26,12 @@ black = "^25.1.0"
 pytest = "^8.3.5"
 pytest-django = "^4.10.0"
 testcontainers = "^4.9.2"
+pytest-cov = "^6.0.0"
+freezegun = "^1.5.1"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "core.settings"
-addopts = "--reuse-db"
+addopts = "--reuse-db --cov=apps.users --cov-report=term-missing"
 filterwarnings = [
     "ignore::DeprecationWarning"
 ]

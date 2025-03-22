@@ -1,11 +1,12 @@
 import json
 
-from apps.users.models import User
-from apps.users.serializers import UserSerializer
-from apps.users.utils import generate_jwt, validate_jwt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
+
+from apps.users.models import User
+from apps.users.serializers import UserSerializer
+from apps.users.utils import generate_jwt, validate_jwt
 
 
 class SignUpView(APIView):
