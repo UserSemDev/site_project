@@ -1,10 +1,11 @@
 import json
+
+from apps.users.models import User
 from apps.users.serializers import UserSerializer
+from apps.users.utils import generate_jwt, validate_jwt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
-from apps.users.models import User
-from apps.users.utils import generate_jwt, validate_jwt
 
 
 class SignUpView(APIView):
@@ -18,10 +19,15 @@ class SignUpView(APIView):
         required_fields = ["username", "email", "password"]
         missing_fields = [field for field in required_fields if not data.get(field)]
         if missing_fields:
-            return JsonResponse({"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400)
+            return JsonResponse(
+                {"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400
+            )
 
-        if User.objects(username=data["username"]).first() or User.objects(email=data["email"]).first():
-            return JsonResponse({"error": "User with this username or email already exists"}, status=400)
+        if User.objects(username=data["username"]).first():
+            return JsonResponse({"error": "Username already exists"}, status=400)
+
+        if User.objects(email=data["email"]).first():
+            return JsonResponse({"error": "Email already exists"}, status=400)
 
         serializer = UserSerializer(data=data)
         if serializer.is_valid():
@@ -43,7 +49,9 @@ class SignInView(APIView):
         password = data.get("password")
 
         if not username or not password:
-            return JsonResponse({"error": "Missing fields: username, password"}, status=400)
+            return JsonResponse(
+                {"error": "Missing fields: username, password"}, status=400
+            )
 
         user = User.objects(username=username).first()
         if not user or not user.check_password(password):
@@ -65,5 +73,7 @@ class AuthView(APIView):
         if payload:
             user_id = payload["user_id"]
             user = User.objects(id=user_id).first()
-            return JsonResponse({"user": {"username": user.username, "role": user.role}}, status=200)
+            return JsonResponse(
+                {"user": {"username": user.username, "role": user.role}}, status=200
+            )
         return JsonResponse({"error": "Invalid token"}, status=401)

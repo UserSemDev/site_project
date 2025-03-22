@@ -1,6 +1,6 @@
 import bcrypt
 from django.utils import timezone
-from mongoengine import Document, StringField, EmailField, DateTimeField
+from mongoengine import DateTimeField, Document, EmailField, StringField
 
 
 class User(Document):
@@ -13,10 +13,14 @@ class User(Document):
 
     def set_password(self, raw_password):
         salt = bcrypt.gensalt()
-        self.password = bcrypt.hashpw(raw_password.encode("utf-8"), salt).decode("utf-8")
+        self.password = bcrypt.hashpw(raw_password.encode("utf-8"), salt).decode(
+            "utf-8"
+        )
 
     def check_password(self, raw_password):
-        return bcrypt.checkpw(raw_password.encode("utf-8"), self.password.encode("utf-8"))
+        return bcrypt.checkpw(
+            raw_password.encode("utf-8"), self.password.encode("utf-8")
+        )
 
     def update_last_login(self):
         self.last_login = timezone.now()

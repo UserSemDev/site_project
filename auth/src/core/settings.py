@@ -83,16 +83,17 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.dummy',
+    "default": {
+        "ENGINE": "django.db.backends.dummy",
     }
 }
 
-MONGO_DB_NAME = os.getenv("MONGO_INITDB_DATABASE")
 MONGO_HOST = os.getenv("MONGO_HOST")
 MONGO_PORT = int(os.getenv("MONGO_PORT"))
 MONGO_USERNAME = os.getenv("MONGO_INITDB_ROOT_USERNAME")
 MONGO_PASSWORD = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+MONGO_AUTH_DB = os.getenv("MONGO_AUTH_DB")
+MONGO_DB = os.getenv("MONGO_INITDB_DATABASE")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
