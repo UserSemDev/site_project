@@ -3,7 +3,7 @@ import json
 import pytest
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 def test_signup_success(client):
     data = {
         "username": "user1",
@@ -18,7 +18,7 @@ def test_signup_success(client):
     assert response.json()["jwt"]
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 @pytest.mark.parametrize(
     "payload, excepted_status",
     [
@@ -68,7 +68,7 @@ def test_signup_failure(client, payload, excepted_status):
     assert response.status_code == excepted_status
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 @pytest.mark.parametrize(
     "payload, excepted_status",
     [

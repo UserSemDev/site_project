@@ -3,7 +3,7 @@ import json
 import pytest
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 def test_signin_success(client, first_user):
     data = {"username": "test_user", "password": "test_password"}
     response = client.post(
@@ -13,7 +13,7 @@ def test_signin_success(client, first_user):
     assert response.json()["jwt"]
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 @pytest.mark.parametrize(
     "payload, excepted_status",
     [

@@ -7,7 +7,7 @@ from freezegun import freeze_time
 from core.settings import TIME_ZONE
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 def test_auth_success(client, auth_token, first_user):
     headers = {"Authorization": "Bearer " + auth_token}
     response = client.get("/auth/", headers=headers)
@@ -15,7 +15,7 @@ def test_auth_success(client, auth_token, first_user):
     assert response.json()["user"]["username"] == first_user.username
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 @pytest.mark.parametrize(
     "token, expected_status",
     [
@@ -32,7 +32,7 @@ def test_auth_failure(client, token, expected_status):
     assert response.status_code == expected_status
 
 
-@pytest.mark.unit
+@pytest.mark.e2e
 def test_expired_token(client, auth_token):
     start_time = datetime.datetime.now(pytz.timezone(TIME_ZONE))
     with freeze_time(
