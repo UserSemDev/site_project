@@ -33,7 +33,8 @@ freezegun = "^1.5.1"
 DJANGO_SETTINGS_MODULE = "core.settings"
 addopts = "--reuse-db --cov=apps.users --cov-report=term-missing"
 filterwarnings = [
-    "ignore::DeprecationWarning"
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning"
 ]
 markers = [
     "unit: тесты на единичные компоненты"
