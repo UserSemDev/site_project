@@ -15,6 +15,7 @@ django = "^5.1.7"
 djangorestframework = "^3.15.2"
 python-dotenv = "^1.0.1"
 psycopg2-binary = "^2.9.3"
+django-filter = "^25.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.2"
