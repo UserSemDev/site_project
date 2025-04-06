@@ -5,25 +5,26 @@ from apps.events.filters import EventFilter
 from apps.events.models import Event
 from apps.events.pagination import EventPagination
 from apps.events.serializers import EventSerializer
+from apps.events.permissions import IsAdmin
 
 
 class EventsCreateAPIView(generics.CreateAPIView):
     """Эндпоинт создания мероприятия"""
-
+    permission_classes = [IsAdmin]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
 
 class EventsUpdateAPIView(generics.UpdateAPIView):
     """Эндпоинт изменения мероприятия"""
-
+    permission_classes = [IsAdmin]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
 
 class EventsDeleteAPIView(generics.DestroyAPIView):
     """Эндпоинт удаления мероприятия"""
-
+    permission_classes = [IsAdmin]
     queryset = Event.objects.all()
 
 
