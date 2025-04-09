@@ -74,7 +74,9 @@ class AuthView(APIView):
         if payload:
             user_id = payload["user_id"]
             user = User.objects(id=user_id).first()
-            return JsonResponse(
-                {"user": {"username": user.username, "role": user.role}}, status=200
-            )
+            response = JsonResponse({"user": {"username": user.username}}, status=200)
+            response["Authorization"] = auth_header
+            response['X-USER-ROLE'] = user.role
+            return response
+
         return JsonResponse({"error": "Invalid token"}, status=401)
