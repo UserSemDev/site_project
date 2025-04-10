@@ -5,7 +5,7 @@ from apps.events.filters import EventFilter
 from apps.events.models import Event
 from apps.events.pagination import EventPagination
 from apps.events.serializers import EventSerializer
-from apps.events.permissions import IsAdmin
+from apps.events.permissions import IsAdmin, IsUser
 
 
 class EventsCreateAPIView(generics.CreateAPIView):
@@ -31,6 +31,7 @@ class EventsDeleteAPIView(generics.DestroyAPIView):
 class EventsDetailAPIView(generics.RetrieveAPIView):
     """Эндпоинт детального просмотра мероприятия"""
 
+    permission_classes = [IsUser]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
@@ -38,6 +39,7 @@ class EventsDetailAPIView(generics.RetrieveAPIView):
 class EventsListAPIView(generics.ListAPIView):
     """Эндпоинт списка мероприятий"""
 
+    permission_classes = [IsUser]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     pagination_class = EventPagination
