@@ -92,8 +92,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.event-service.rule=Host(`events.localhost`) && PathPrefix(`/`)"
       - "traefik.http.routers.event-service.entryPoints=web"
+      - "traefik.http.routers.event-service.middlewares=auth-service-middleware"
       - "traefik.http.services.event-service.loadbalancer.server.port=80"
-      - "traefik.http.routers.middlewares=auth-service-middleware"
     networks:
       - backend
 
