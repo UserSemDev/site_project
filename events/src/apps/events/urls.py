@@ -1,9 +1,13 @@
 from django.urls import path
 
 from apps.events.apps import EventsConfig
-from apps.events.views import (EventsCreateAPIView, EventsDeleteAPIView,
-                               EventsDetailAPIView, EventsListAPIView,
-                               EventsUpdateAPIView)
+from apps.events.views import (
+    EventsCreateAPIView,
+    EventsDeleteAPIView,
+    EventsDetailAPIView,
+    EventsListAPIView,
+    EventsUpdateAPIView,
+)
 
 app_name = EventsConfig.name
 

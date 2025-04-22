@@ -1,7 +1,7 @@
 from django.apps import AppConfig
+from django.conf import settings
 
 from apps.events.services.rabbitmq.adapter import LazyRmqSender
-from django.conf import settings
 
 
 class EventsConfig(AppConfig):
