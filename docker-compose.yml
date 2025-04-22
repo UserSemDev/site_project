@@ -97,6 +97,19 @@ services:
     networks:
       - backend
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    container_name: "rabbitmq"
+    env_file:
+      - ./events/.env
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    depends_on:
+      - events-service
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
@@ -104,3 +117,4 @@ networks:
 volumes:
   mongo_data:
   postgres_data:
+  rabbitmq_data:
