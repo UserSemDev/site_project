@@ -103,10 +103,10 @@ services:
     container_name: "rabbitmq"
     env_file:
       - ./events/.env
-    ports:
-      - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    depends_on:
+      - events-service
     networks:
       - backend
 
