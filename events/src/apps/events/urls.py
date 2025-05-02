@@ -8,9 +8,9 @@ from apps.events.views import (EventsCreateAPIView, EventsDeleteAPIView,
 app_name = EventsConfig.name
 
 urlpatterns = [
-    path("create/", EventsCreateAPIView.as_view(), name="event_create"),
-    path("update/<int:pk>", EventsUpdateAPIView.as_view(), name="event_update"),
-    path("delete/<int:pk>", EventsDeleteAPIView.as_view(), name="event_delete"),
+    path("", EventsCreateAPIView.as_view(), name="event_create"),
+    path("<int:pk>", EventsUpdateAPIView.as_view(), name="event_update"),
+    path("<int:pk>", EventsDeleteAPIView.as_view(), name="event_delete"),
     path("<int:pk>", EventsDetailAPIView.as_view(), name="event_detail"),
     path("", EventsListAPIView.as_view(), name="event_list"),
 ]
